@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /lms_v2/
+    RewriteRule ^student_portal\.html$ portal.html [R=301,L]
+    RewriteRule ^student_login\.html$ login.html [R=301,L]
+    RewriteRule ^index\.html$ login.html [R=301,L]
+</IfModule>

@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library folders</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17231f;
+      --muted: #68766f;
+      --line: #e2e9e4;
+      --surface: #fff;
+      --canvas: #f5f8f5;
+      --green: #18764d;
+      --green-dark: #105b3a;
+      --danger: #b93636;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px max(24px, calc((100vw - 1180px) / 2));
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      color: #fff;
+      background: var(--green);
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .brand-name { font-size: 16px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 12px; }
+
+    main { width: min(1180px, calc(100% - 48px)); margin: 44px auto 72px; }
+    .heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 26px;
+    }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 38px); letter-spacing: -.045em; }
+    .subtitle { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .toolbar { display: flex; gap: 10px; }
+    .empty-state {
+      display: flex;
+      min-height: 300px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px dashed #d3ded6;
+      border-radius: 16px;
+    }
+    .empty-state[hidden] { display: none; }
+    .empty-content { text-align: center; }
+    .empty-icon { margin-bottom: 12px; font-size: 34px; }
+    .empty-title { margin: 0; font-size: 17px; font-weight: 700; }
+    .empty-copy { margin: 7px 0 17px; color: var(--muted); font-size: 13px; }
+
+    .button {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 15px;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 650;
+      transition: background .15s, border-color .15s, transform .15s;
+    }
+    .button:hover { background: #f7faf8; border-color: #cbd9d0; }
+    .button:active { transform: translateY(1px); }
+    .button-primary { color: #fff; background: var(--green); border-color: var(--green); }
+    .button-primary:hover { color: #fff; background: var(--green-dark); border-color: var(--green-dark); }
+    .button-danger { color: var(--danger); }
+    .button-danger:hover { color: #982828; background: #fff6f6; border-color: #f0caca; }
+    .button-small { min-height: 34px; padding: 0 10px; font-size: 12px; }
+
+    .breadcrumb {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      padding: 0 15px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+    .crumb {
+      padding: 5px 2px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      font-size: 13px;
+    }
+    .crumb:hover, .crumb[aria-current="page"] { color: var(--green); }
+    .crumb[aria-current="page"] { font-weight: 700; }
+    .crumb-separator { color: #aab5ae; font-size: 12px; }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 26px 0 13px;
+    }
+    h2 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+    .count { color: var(--muted); font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 14px; }
+    .card {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 2px 6px #173a2410;
+    }
+    .folder-card { display: flex; min-height: 104px; align-items: center; gap: 13px; padding: 14px; }
+    .folder-icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      place-items: center;
+      background: #eaf5ee;
+      border-radius: 13px;
+      font-size: 23px;
+    }
+    .folder-main { min-width: 0; flex: 1; }
+    .folder-open {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      padding: 0;
+      color: var(--ink);
+      background: transparent;
+      border: 0;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .folder-open:hover { color: var(--green); }
+    .folder-meta { margin-top: 6px; color: var(--muted); font-size: 12px; }
+    .card-actions { display: flex; gap: 5px; }
+    .icon-button {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      place-items: center;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .icon-button:hover { color: var(--green); background: #eff7f1; }
+    .icon-button.delete:hover { color: var(--danger); background: #fff3f3; }
+
+    .video-card { display: flex; min-height: 86px; align-items: center; gap: 13px; padding: 13px; }
+    .video-thumb {
+      display: grid;
+      width: 66px;
+      height: 52px;
+      flex: 0 0 66px;
+      overflow: hidden;
+      place-items: center;
+      color: #486454;
+      background: #edf3ee;
+      border-radius: 9px;
+      font-size: 20px;
+    }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .video-info { min-width: 0; flex: 1; }
+    .video-title {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    a.video-title { text-decoration: none; }
+    a.video-title:hover { color: var(--green); }
+    .video-url { overflow: hidden; margin-top: 5px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .empty {
+      grid-column: 1 / -1;
+      padding: 30px 20px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px dashed #d3ded6;
+      border-radius: 14px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .status { min-height: 20px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+    .status.error { color: var(--danger); }
+
+    dialog {
+      width: min(440px, calc(100% - 32px));
+      padding: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 24px 80px #10241b33;
+    }
+    dialog::backdrop { background: #10241b66; backdrop-filter: blur(2px); }
+    .dialog-content { padding: 24px; }
+    .dialog-content h2 { margin-bottom: 6px; font-size: 20px; }
+    .dialog-help { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .field { display: block; margin: 14px 0; }
+    .field span { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 650; }
+    .field input, .field select {
+      width: 100%;
+      height: 42px;
+      padding: 0 11px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      outline: none;
+    }
+    .field input:focus, .field select:focus { border-color: #6eae8b; box-shadow: 0 0 0 3px #18764d18; }
+    .dialog-error { min-height: 18px; color: var(--danger); font-size: 12px; }
+    .dialog-actions { display: flex; justify-content: end; gap: 9px; margin-top: 16px; }
+    .loading { padding: 42px 15px; color: var(--muted); text-align: center; }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 14px 18px; }
+      main { width: calc(100% - 32px); margin-top: 30px; }
+      .heading { align-items: start; flex-direction: column; }
+      .toolbar { width: 100%; }
+      .toolbar .button { flex: 1; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">L</div>
+      <div>
+        <div class="brand-name">Learning Library</div>
+        <div class="brand-caption">Organize your video collection</div>
+      </div>
+    </div>
+    <button class="button" id="refresh-button" type="button" title="Refresh">↻ <span>Refresh</span></button>
+  </header>
+
+  <main>
+    <div class="heading">
+      <div>
+        <h1>Library</h1>
+        <p class="subtitle">Browse folders and the videos they contain.</p>
+      </div>
+      <div class="toolbar">
+        <button class="button button-primary" id="create-button" type="button">＋ New folder</button>
+        <button class="button" id="add-video-button" type="button">＋ Add video</button>
+      </div>
+    </div>
+
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Folder path"></nav>
+    <section class="empty-state" id="empty-state" hidden>
+      <div class="empty-content">
+        <div class="empty-icon" aria-hidden="true">📚</div>
+        <p class="empty-title">Nothing here yet</p>
+        <p class="empty-copy">Create a folder to get started.</p>
+        <div id="empty-actions"></div>
+      </div>
+    </section>
+    <div class="section-heading" id="folders-heading" hidden>
+      <h2>Folders</h2>
+      <span class="count" id="folder-count"></span>
+    </div>
+    <section class="grid" id="folder-list" aria-label="Folders" aria-live="polite" hidden>
+      <div class="loading">Loading folders…</div>
+    </section>
+    <div class="section-heading" id="videos-heading" hidden>
+      <h2>Videos</h2>
+      <span class="count" id="video-count"></span>
+    </div>
+    <section class="grid" id="video-list" aria-label="Videos" aria-live="polite" hidden></section>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <dialog id="folder-dialog">
+    <form class="dialog-content" id="folder-form">
+      <h2 id="dialog-title">Create folder</h2>
+      <p class="dialog-help" id="dialog-help"></p>
+      <label class="field">
+        <span>Folder name</span>
+        <input id="folder-name" name="folder_name" required maxlength="255" autocomplete="off">
+      </label>
+      <label class="field" id="parent-folder-field">
+        <span>Parent location</span>
+        <select id="parent-folder" name="parent_folder_id" required></select>
+      </label>
+      <label class="field" id="thumbnail-field">
+        <span>Thumbnail URL <small>(optional)</small></span>
+        <input id="thumbnail-url" name="thumbnail_url" type="url" placeholder="https://example.com/image.jpg">
+      </label>
+      <div class="dialog-error" id="dialog-error"></div>
+      <div class="dialog-actions">
+        <button class="button" id="cancel-button" type="button">Cancel</button>
+        <button class="button button-primary" id="save-button" type="submit">Create folder</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="video-dialog">
+    <form class="dialog-content" id="video-form">
+      <h2>Add video</h2>
+      <p class="dialog-help">Choose where this video should appear.</p>
+      <label class="field">
+        <span>Video title</span>
+        <input id="video-title" name="title" required maxlength="255" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Video URL</span>
+        <input id="video-url" name="video_url" type="url" required placeholder="https://example.com/video">
+      </label>
+      <label class="field">
+        <span>Thumbnail URL <small>(optional)</small></span>
+        <input id="video-thumbnail" name="thumbnail_url" type="url" placeholder="https://example.com/image.jpg">
+      </label>
+      <label class="field">
+        <span>Location</span>
+        <select id="video-folder" name="folder_id" required></select>
+      </label>
+      <div class="dialog-error" id="video-dialog-error"></div>
+      <div class="dialog-actions">
+        <button class="button" id="cancel-video-button" type="button">Cancel</button>
+        <button class="button button-primary" id="save-video-button" type="submit">Add video</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    "use strict";
+
+    const API_URL = "index.php";
+    const state = { folderId: 0, path: [], folders: [], videos: [], dialogMode: "create", editingFolder: null, allFolders: [] };
+    const folderList = document.getElementById("folder-list");
+    const videoList = document.getElementById("video-list");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const status = document.getElementById("status");
+    const dialog = document.getElementById("folder-dialog");
+    const form = document.getElementById("folder-form");
+    const videoDialog = document.getElementById("video-dialog");
+    const videoForm = document.getElementById("video-form");
+
+    function safeHttpUrl(value) {
+      if (!value) return "";
+      try {
+        const url = new URL(value, window.location.href);
+        return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+      } catch {
+        return "";
+      }
+    }
+
+    async function request(url, options) {
+      const response = await fetch(url, options);
+      const text = await response.text();
+      let data = {};
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // update_nodes currently emits a debug JSON object before its response.
+          const responseStart = Math.max(text.lastIndexOf('{"success"'), text.lastIndexOf('{"Success"'));
+          if (responseStart >= 0) {
+            try { data = JSON.parse(text.slice(responseStart)); } catch { data = {}; }
+          }
+        }
+      }
+      if (!response.ok || data.Success === false || data.success === false) {
+        throw new Error(data.message || data.Message || data["Error message"] || `Request failed (${response.status}).`);
+      }
+      return data;
+    }
+
+    function setStatus(message, isError) {
+      status.textContent = message || "";
+      status.classList.toggle("error", Boolean(isError));
+    }
+
+    function folderId(folder) {
+      return Number(folder.folder_id);
+    }
+
+    function renderBreadcrumb() {
+      breadcrumb.replaceChildren();
+      const items = [{ id: 0, name: "All folders" }, ...state.path];
+      items.forEach((item, index) => {
+        if (index > 0) {
+          const separator = document.createElement("span");
+          separator.className = "crumb-separator";
+          separator.textContent = "/";
+          breadcrumb.append(separator);
+        }
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "crumb";
+        button.textContent = item.name;
+        if (index === items.length - 1) button.setAttribute("aria-current", "page");
+        button.addEventListener("click", () => navigate(item.id, index === 0 ? [] : state.path.slice(0, index)));
+        breadcrumb.append(button);
+      });
+    }
+
+    function updateEmptyState() {
+      const empty = state.folders.length === 0 && state.videos.length === 0;
+      document.getElementById("empty-state").hidden = !empty;
+      const createButton = document.getElementById("create-button");
+      const target = empty ? document.getElementById("empty-actions") : document.querySelector(".toolbar");
+      if (createButton.parentElement !== target) target.append(createButton);
+    }
+
+    function renderFolders() {
+      folderList.replaceChildren();
+      const hasFolders = state.folders.length > 0;
+      document.getElementById("folders-heading").hidden = !hasFolders;
+      folderList.hidden = !hasFolders;
+      document.getElementById("folder-count").textContent = `${state.folders.length} ${state.folders.length === 1 ? "folder" : "folders"}`;
+      if (!hasFolders) return;
+      state.folders.forEach((folder) => {
+        const card = document.createElement("article");
+        card.className = "card folder-card";
+        const icon = document.createElement("div");
+        icon.className = "folder-icon";
+        icon.setAttribute("aria-hidden", "true");
+        const thumbnail = safeHttpUrl(folder.thumbnail_url);
+        if (thumbnail) {
+          const image = document.createElement("img");
+          image.src = thumbnail;
+          image.alt = "";
+          image.width = 48;
+          image.height = 48;
+          image.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:13px";
+          image.addEventListener("error", () => { icon.textContent = "📁"; });
+          icon.append(image);
+        } else {
+          icon.textContent = "📁";
+        }
+        const main = document.createElement("div");
+        main.className = "folder-main";
+        const open = document.createElement("button");
+        open.type = "button";
+        open.className = "folder-open";
+        open.textContent = folder.folder_name || "Untitled folder";
+        open.title = "Open folder";
+        open.addEventListener("click", () => navigate(folderId(folder), [...state.path, { id: folderId(folder), name: folder.folder_name || "Untitled folder" }]));
+        const meta = document.createElement("div");
+        meta.className = "folder-meta";
+        meta.textContent = "Open folder";
+        main.append(open, meta);
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
+        actions.append(
+          makeIconButton("✎", `Rename ${folder.folder_name || "folder"}`, () => openFolderDialog("rename", folder)),
+          makeIconButton("×", `Delete ${folder.folder_name || "folder"}`, () => removeFolder(folder), true)
+        );
+        card.append(icon, main, actions);
+        folderList.append(card);
+      });
+    }
+
+    function makeIconButton(label, title, action, isDelete) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `icon-button${isDelete ? " delete" : ""}`;
+      button.textContent = label;
+      button.title = title;
+      button.setAttribute("aria-label", title);
+      button.addEventListener("click", action);
+      return button;
+    }
+
+    function renderVideos() {
+      videoList.replaceChildren();
+      const hasVideos = state.videos.length > 0;
+      document.getElementById("videos-heading").hidden = !hasVideos;
+      videoList.hidden = !hasVideos;
+      document.getElementById("video-count").textContent = `${state.videos.length} ${state.videos.length === 1 ? "video" : "videos"}`;
+      if (!hasVideos) return;
+      state.videos.forEach((video) => {
+        const card = document.createElement("article");
+        card.className = "card video-card";
+        const thumb = document.createElement("div");
+        thumb.className = "video-thumb";
+        const imageUrl = safeHttpUrl(video.thumbnail_url);
+        if (imageUrl) {
+          const image = document.createElement("img");
+          image.src = imageUrl;
+          image.alt = "";
+          image.loading = "lazy";
+          image.addEventListener("error", () => { thumb.textContent = "▶"; });
+          thumb.append(image);
+        } else {
+          thumb.textContent = "▶";
+        }
+        const info = document.createElement("div");
+        info.className = "video-info";
+        const videoUrl = safeHttpUrl(video.video_url);
+        const title = document.createElement(videoUrl ? "a" : "span");
+        title.className = "video-title";
+        title.textContent = video.video_title || "Untitled video";
+        if (videoUrl) {
+          title.href = videoUrl;
+          title.target = "_blank";
+          title.rel = "noopener noreferrer";
+        }
+        info.append(title);
+        if (video.video_url) {
+          const url = document.createElement("div");
+          url.className = "video-url";
+          url.textContent = video.video_url;
+          info.append(url);
+        }
+        card.append(thumb, info);
+        videoList.append(card);
+      });
+    }
+
+    function makeApiUrl(action, folder) {
+      const url = new URL(API_URL, window.location.href);
+      url.searchParams.set("action", action);
+      url.searchParams.set("folder_id", String(folder));
+      return url;
+    }
+
+    async function loadAllFolders() {
+      const folders = [];
+      const queue = [{ id: 0, path: [] }];
+      const visited = new Set([0]);
+      while (queue.length) {
+        const current = queue.shift();
+        const data = await request(makeApiUrl("get_tree", current.id));
+        if (data.Success === false || data.success === false) {
+          throw new Error(data.message || data.Message || data["Error message"] || "Could not load folder locations.");
+        }
+        const children = Array.isArray(data.folders) ? data.folders : [];
+        for (const folder of children) {
+          const id = folderId(folder);
+          if (!Number.isInteger(id) || id <= 0 || visited.has(id)) continue;
+          visited.add(id);
+          const path = [...current.path, { id, name: folder.folder_name || "Untitled folder" }];
+          folders.push({ id, name: folder.folder_name || "Untitled folder", path });
+          queue.push({ id, path });
+        }
+      }
+      state.allFolders = folders;
+      return folders;
+    }
+
+    function addFolderOptions(select, folders, includeRoot) {
+      select.replaceChildren();
+      if (includeRoot) {
+        const root = document.createElement("option");
+        root.value = "0";
+        root.textContent = "Root";
+        select.append(root);
+      }
+      folders.forEach((folder) => {
+        const option = document.createElement("option");
+        option.value = String(folder.id);
+        option.textContent = folder.path.map((part) => part.name).join(" / ");
+        select.append(option);
+      });
+    }
+
+    async function navigate(folder, path) {
+      state.folderId = folder;
+      state.path = path;
+      setStatus("", false);
+      renderBreadcrumb();
+      folderList.replaceChildren(Object.assign(document.createElement("div"), { className: "loading", textContent: "Loading folders…" }));
+      videoList.replaceChildren();
+      try {
+        const data = await request(makeApiUrl("get_tree", folder));
+        if (data.Success === false || data.success === false) {
+          throw new Error(data.message || data.Message || data["Error message"] || "Could not load this folder.");
+        }
+        state.folders = Array.isArray(data.folders) ? data.folders : [];
+        state.videos = Array.isArray(data.videos) ? data.videos : (Array.isArray(data.Videos) ? data.Videos : []);
+        renderFolders();
+        renderVideos();
+        updateEmptyState();
+      } catch (error) {
+        state.folders = [];
+        state.videos = [];
+        renderFolders();
+        renderVideos();
+        updateEmptyState();
+        setStatus(error.message || "Could not load folders.", true);
+      }
+    }
+
+    async function openFolderDialog(mode, folder) {
+      state.dialogMode = mode;
+      state.editingFolder = folder || null;
+      const renaming = mode === "rename";
+      document.getElementById("dialog-title").textContent = renaming ? "Rename folder" : "Create folder";
+      document.getElementById("dialog-help").textContent = renaming
+        ? "Choose a new name for this folder."
+        : "Choose any location in the library, including the root.";
+      document.getElementById("save-button").textContent = renaming ? "Save name" : "Create folder";
+      document.getElementById("folder-name").value = renaming ? (folder.folder_name || "") : "";
+      document.getElementById("thumbnail-url").value = renaming ? (folder.thumbnail_url || "") : "";
+      document.getElementById("thumbnail-field").hidden = renaming;
+      document.getElementById("parent-folder-field").hidden = renaming;
+      const parentSelect = document.getElementById("parent-folder");
+      parentSelect.required = !renaming;
+      parentSelect.disabled = renaming;
+      document.getElementById("dialog-error").textContent = "";
+      if (!renaming) {
+        addFolderOptions(parentSelect, [], true);
+        parentSelect.value = "0";
+      }
+      dialog.showModal();
+      document.getElementById("folder-name").focus();
+      if (!renaming) {
+        try {
+          const folders = await loadAllFolders();
+          if (!dialog.open || state.dialogMode !== "create") return;
+          const parentSelect = document.getElementById("parent-folder");
+          addFolderOptions(parentSelect, folders, true);
+          parentSelect.value = state.folderId === 0 || !folders.some((item) => item.id === state.folderId)
+            ? "0"
+            : String(state.folderId);
+        } catch (error) {
+          if (dialog.open && state.dialogMode === "create") {
+            document.getElementById("dialog-error").textContent =
+              `${error.message || "Could not load folder locations."} You can still create this folder in Root.`;
+          }
+        }
+      }
+    }
+
+    async function openVideoDialog() {
+      document.getElementById("video-dialog-error").textContent = "";
+      try {
+        const folders = await loadAllFolders();
+        if (!folders.length) {
+          setStatus("Create a folder before adding a video.", true);
+          return;
+        }
+        const select = document.getElementById("video-folder");
+        addFolderOptions(select, folders, false);
+        select.value = folders.some((item) => item.id === state.folderId) ? String(state.folderId) : String(folders[0].id);
+        videoDialog.showModal();
+        document.getElementById("video-title").focus();
+      } catch (error) {
+        setStatus(error.message || "Could not load folder locations.", true);
+      }
+    }
+
+    async function removeFolder(folder) {
+      const name = folder.folder_name || "this folder";
+      if (!window.confirm(`Delete "${name}" and all of its nested folders and videos? This cannot be undone.`)) return;
+      try {
+        await request(makeApiUrl("folder", folderId(folder)), { method: "DELETE" });
+        setStatus(`"${name}" deleted.`, false);
+        await navigate(state.folderId, state.path);
+      } catch (error) {
+        setStatus(error.message || "Could not delete the folder.", true);
+      }
+    }
+
+    document.getElementById("create-button").addEventListener("click", () => openFolderDialog("create", null));
+    document.getElementById("add-video-button").addEventListener("click", openVideoDialog);
+    document.getElementById("refresh-button").addEventListener("click", () => navigate(state.folderId, state.path));
+    document.getElementById("cancel-button").addEventListener("click", () => dialog.close());
+    document.getElementById("cancel-video-button").addEventListener("click", () => videoDialog.close());
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = document.getElementById("folder-name").value.trim();
+      const errorBox = document.getElementById("dialog-error");
+      if (!name) {
+        errorBox.textContent = "Folder name cannot be empty.";
+        return;
+      }
+      const saveButton = document.getElementById("save-button");
+      saveButton.disabled = true;
+      errorBox.textContent = "";
+      try {
+        if (state.dialogMode === "create") {
+          const body = new URLSearchParams();
+          body.set("folder_name", name);
+          const thumbnail = document.getElementById("thumbnail-url").value.trim();
+          if (thumbnail) body.set("thumbnail_url", thumbnail);
+          const parentId = Number(document.getElementById("parent-folder").value);
+          if (parentId !== 0) body.set("parent_folder_id", String(parentId));
+          await request(makeApiUrl("create_folder", parentId), {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+            body
+          });
+          setStatus(`"${name}" created.`, false);
+          state.folderId = parentId;
+          state.path = parentId === 0 ? [] : (state.allFolders.find((item) => item.id === parentId)?.path || []);
+        } else {
+          const folder = state.editingFolder;
+          await request(makeApiUrl("update_folder", folderId(folder)), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ folder_name: name })
+          });
+          setStatus(`"${name}" renamed.`, false);
+        }
+        dialog.close();
+        await navigate(state.folderId, state.path);
+      } catch (error) {
+        errorBox.textContent = error.message || "The folder could not be saved.";
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    videoForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const errorBox = document.getElementById("video-dialog-error");
+      const saveButton = document.getElementById("save-video-button");
+      const title = document.getElementById("video-title").value.trim();
+      const videoUrl = document.getElementById("video-url").value.trim();
+      const folder = Number(document.getElementById("video-folder").value);
+      if (!title || !videoUrl || !folder) {
+        errorBox.textContent = "Title, video URL, and a location are required.";
+        return;
+      }
+      saveButton.disabled = true;
+      errorBox.textContent = "";
+      try {
+        const body = new URLSearchParams();
+        body.set("title", title);
+        body.set("video_url", videoUrl);
+        body.set("folder_id", String(folder));
+        const thumbnail = document.getElementById("video-thumbnail").value.trim();
+        if (thumbnail) body.set("thumbnail_url", thumbnail);
+        await request(makeApiUrl("add_video", folder), {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body
+        });
+        videoDialog.close();
+        setStatus(`"${title}" added.`, false);
+        const destination = state.allFolders.find((item) => item.id === folder);
+        await navigate(folder, destination ? destination.path : []);
+      } catch (error) {
+        errorBox.textContent = error.message || "The video could not be added.";
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    navigate(0, []);
+  </script>
+</body>
+</html>
