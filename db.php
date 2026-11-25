@@ -8,7 +8,7 @@ function db(): PDO
     static $pdo = null;
     if ($pdo) return $pdo;
 
-    $host = getenv('DB_HOST') ?: '193.203.184.248';
+    $host = getenv('DB_HOST') ?: 'localhost';
     $port = getenv('DB_PORT') ?: '3306';
     $name = getenv('DB_NAME') ?: 'u457767862_lms';
     $user = getenv('DB_USER') ?: 'u457767862_lms';
